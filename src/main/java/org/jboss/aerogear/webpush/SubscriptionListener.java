@@ -19,6 +19,7 @@ package org.jboss.aerogear.webpush;
 /**
  * Listener fired when a new subscription resource has been created on a WebPush Server and received.
  */
+@FunctionalInterface
 public interface SubscriptionListener {
 
     void onSubscribed(Subscription subscription);

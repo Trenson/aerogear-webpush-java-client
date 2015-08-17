@@ -19,6 +19,7 @@ package org.jboss.aerogear.webpush;
 /**
  * Listener fired when a push notification has been received.
  */
+@FunctionalInterface
 public interface PushMessageListener {
 
     void onReceived(PushMessage pushMessage);
