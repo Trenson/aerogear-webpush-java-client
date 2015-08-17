@@ -61,4 +61,21 @@ public class Subscription {  //FIXME should it be serializable?
     public long expirationTime() {
         return expirationTime;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Subscription)) {
+            return false;
+        }
+        Subscription that = (Subscription) o;
+        return subscriptionResource.equals(that.subscriptionResource);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(subscriptionResource);
+    }
 }

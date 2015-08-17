@@ -17,13 +17,15 @@
 package org.jboss.aerogear.webpush;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 public class WebPushClient {
 
-    private Subscription subscription;
-    private Consumer<Subscription> subscriptionConsumer;
-    private Consumer<PushMessage> pushMessageConsumer;
+    private final ConcurrentMap<Subscription, Consumer<Optional<PushMessage>>> monitoredSubscriptions
+            = new ConcurrentHashMap<>();
 
     public WebPushClient(final String webPushServerURL) {
         Objects.requireNonNull(webPushServerURL, "webPushServerURL");
@@ -36,34 +38,36 @@ public class WebPushClient {
 
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
-        this.subscriptionConsumer = consumer;
         //TODO implement subscription
     }
 
-    public void deleteSubscription() {
-        if (subscription == null) {
-            throw new IllegalStateException("not subscribed");
-        }
+    public void deleteSubscription(final Subscription subscription) {
+        Objects.requireNonNull(subscription, "subscription");
+        cancelMonitoring(subscription);
         //TODO implement delete subscription
-        subscription = null;
-        subscriptionConsumer = null;
     }
 
-    public void monitor(final Consumer<PushMessage> consumer) {
-        monitor(consumer, false);
+    public void monitor(final Subscription subscription, final Consumer<Optional<PushMessage>> consumer) {
+        monitor(subscription, consumer, false);
     }
 
-    public void monitor(final Consumer<PushMessage> consumer, final boolean nowait) {
+    public void monitor(final Subscription subscription,
+                        final Consumer<Optional<PushMessage>> consumer,
+                        final boolean nowait) {
+        Objects.requireNonNull(subscription, "subscription");
         Objects.requireNonNull(consumer, "pushMessageConsumer");
-        this.pushMessageConsumer = consumer;
+        final Consumer<Optional<PushMessage>> prevConsumer = monitoredSubscriptions.putIfAbsent(subscription, consumer);
+        if (prevConsumer != null) {
+            return; //this subscription has already monitored
+        }
         //TODO implement monitor
     }
 
-    public void cancelMonitoring() {
-        if (pushMessageConsumer == null) {
-            throw new IllegalStateException("monitoring disabled");
+    public void cancelMonitoring(final Subscription subscription) {
+        final Consumer<Optional<PushMessage>> consumer = monitoredSubscriptions.remove(subscription);
+        if (consumer == null) {
+            return; //this subscription is not monitored
         }
         //TODO implement cancel monitoring
-        pushMessageConsumer = null;
     }
 }
