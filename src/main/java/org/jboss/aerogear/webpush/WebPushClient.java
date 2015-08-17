@@ -17,13 +17,14 @@
 package org.jboss.aerogear.webpush;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class WebPushClient {
 
     private String subscriptionResource;
     private Subscription subscription;
-    private SubscriptionListener subscriptionListener;
-    private PushMessageListener pushMessageListener;
+    private Consumer<Subscription> subscriptionConsumer;
+    private Consumer<PushMessage> pushMessageConsumer;
 
     public WebPushClient(final String webPushServerURL) {
         Objects.requireNonNull(webPushServerURL, "webPushServerURL");
@@ -34,37 +35,36 @@ public class WebPushClient {
         Objects.requireNonNull(path, "path");
     }
 
-    public void subscribe(final SubscriptionListener listener) {
-        Objects.requireNonNull(listener, "subscriptionListener");
-        this.subscriptionListener = listener;
+    public void subscribe(final Consumer<Subscription> consumer) {
+        Objects.requireNonNull(consumer, "subscriptionConsumer");
+        this.subscriptionConsumer = consumer;
         //TODO implement subscription
     }
 
     public void deleteSubscription() {
-        if (subscriptionResource == null || subscription == null) {
+        if (subscription == null) {
             throw new IllegalStateException("not subscribed");
         }
         //TODO implement delete subscription
-        subscriptionResource = null;
         subscription = null;
-        subscriptionListener = null;
+        subscriptionConsumer = null;
     }
 
-    public void monitor(final PushMessageListener listener) {
-        monitor(listener, false);
+    public void monitor(final Consumer<PushMessage> consumer) {
+        monitor(consumer, false);
     }
 
-    public void monitor(final PushMessageListener listener, final boolean nowait) {
-        Objects.requireNonNull(listener, "pushMessageListener");
-        this.pushMessageListener = listener;
+    public void monitor(final Consumer<PushMessage> consumer, final boolean nowait) {
+        Objects.requireNonNull(consumer, "pushMessageConsumer");
+        this.pushMessageConsumer = consumer;
         //TODO implement monitor
     }
 
     public void cancelMonitoring() {
-        if (pushMessageListener == null) {
+        if (pushMessageConsumer == null) {
             throw new IllegalStateException("monitoring disabled");
         }
         //TODO implement cancel monitoring
-        pushMessageListener = null;
+        pushMessageConsumer = null;
     }
 }
