@@ -53,4 +53,14 @@ public class PushMessage {  //FIXME should it be serializable?
     public LocalDateTime receivedDateTime() {
         return receivedDateTime;
     }
+
+    @Override
+    public String toString() {
+        return "PushMessage{" +
+                "data='" + data + '\'' +
+                ", path='" + path + '\'' +
+                ", createdDateTime=" + createdDateTime +
+                ", receivedDateTime=" + receivedDateTime +
+                '}';
+    }
 }

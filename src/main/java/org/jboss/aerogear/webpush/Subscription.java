@@ -78,4 +78,15 @@ public class Subscription {  //FIXME should it be serializable?
     public int hashCode() {
         return Objects.hash(subscriptionResource);
     }
+
+    @Override
+    public String toString() {
+        return "Subscription{" +
+                "subscriptionResource='" + subscriptionResource + '\'' +
+                ", pushResource='" + pushResource + '\'' +
+                ", receiptSubscribeResource='" + receiptSubscribeResource + '\'' +
+                ", createdDateTime=" + createdDateTime +
+                ", expirationTime=" + expirationTime +
+                '}';
+    }
 }
