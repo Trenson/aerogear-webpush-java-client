@@ -21,21 +21,29 @@ import java.util.Objects;
 
 public class Subscription {
 
+    private final String subscriptionResource;
     private final String pushResource;
     private final String receiptSubscribeResource;
     private final LocalDateTime createdDateTime;
     private final Long expirationTime;  //FIXME may be primitive type is preferable
 
-    public Subscription(final String pushResource,
-                         final String receiptSubscribeResource,
-                         final LocalDateTime createdDateTime,
-                         final Long expirationTime) {
+    public Subscription(final String subscriptionResource,
+                        final String pushResource,
+                        final String receiptSubscribeResource,
+                        final LocalDateTime createdDateTime,
+                        final Long expirationTime) {
+        Objects.requireNonNull(subscriptionResource, "subscriptionResource");
         Objects.requireNonNull(pushResource, "pushResource");
         Objects.requireNonNull(receiptSubscribeResource, "receiptSubscribeResource");
+        this.subscriptionResource = subscriptionResource;
         this.pushResource = pushResource;
         this.receiptSubscribeResource = receiptSubscribeResource;
         this.createdDateTime = createdDateTime;
         this.expirationTime = expirationTime;
+    }
+
+    public String subscriptionResource() {
+        return subscriptionResource;
     }
 
     public String pushResource() {

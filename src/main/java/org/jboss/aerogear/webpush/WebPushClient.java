@@ -21,7 +21,6 @@ import java.util.function.Consumer;
 
 public class WebPushClient {
 
-    private String subscriptionResource;
     private Subscription subscription;
     private Consumer<Subscription> subscriptionConsumer;
     private Consumer<PushMessage> pushMessageConsumer;
