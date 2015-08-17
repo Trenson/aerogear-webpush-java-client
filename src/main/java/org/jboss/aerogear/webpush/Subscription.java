@@ -19,7 +19,7 @@ package org.jboss.aerogear.webpush;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Subscription {
+public class Subscription {  //FIXME should it be serializable?
 
     private final String subscriptionResource;
     private final String pushResource;

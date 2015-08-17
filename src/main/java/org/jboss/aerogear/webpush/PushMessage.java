@@ -19,7 +19,7 @@ package org.jboss.aerogear.webpush;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class PushMessage {
+public class PushMessage {  //FIXME should it be serializable?
 
     private final String data;
     private final String path;
