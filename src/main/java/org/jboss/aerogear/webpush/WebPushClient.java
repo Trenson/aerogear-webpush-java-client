@@ -26,6 +26,7 @@ public class WebPushClient {
 
     private final ConcurrentMap<Subscription, Consumer<Optional<PushMessage>>> monitoredSubscriptions
             = new ConcurrentHashMap<>();
+    private volatile boolean connected;
 
     public WebPushClient(final String webPushServerURL) {
         Objects.requireNonNull(webPushServerURL, "webPushServerURL");
@@ -38,11 +39,13 @@ public class WebPushClient {
 
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
+        connect();
         //TODO implement subscription
     }
 
     public void deleteSubscription(final Subscription subscription) {
         Objects.requireNonNull(subscription, "subscription");
+        connect();
         cancelMonitoring(subscription);
         //TODO implement delete subscription
     }
@@ -60,6 +63,7 @@ public class WebPushClient {
         if (prevConsumer != null) {
             return; //this subscription has already monitored
         }
+        connect();
         //TODO implement monitor
     }
 
@@ -68,6 +72,33 @@ public class WebPushClient {
         if (consumer == null) {
             return; //this subscription is not monitored
         }
+        connect();
         //TODO implement cancel monitoring
+    }
+
+    private void connect() {
+        if (connected) {
+            return;
+        }
+        synchronized (this) {
+            if (connected) {
+                return;
+            }
+            connected = true;
+        }
+        //TODO implement connect
+    }
+
+    public void disconnect() {
+        if (!connected) {
+            return;
+        }
+        synchronized (this) {
+            if (!connected) {
+                return;
+            }
+            connected = false;
+        }
+        //TODO implement disconnect
     }
 }
