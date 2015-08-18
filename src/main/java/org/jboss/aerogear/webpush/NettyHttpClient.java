@@ -82,7 +82,7 @@ final class NettyHttpClient {
         return pathPrefix;
     }
 
-    void connect() throws Exception {
+    void connect() throws SSLException {
         workerGroup = new NioEventLoopGroup();
         try {
             final Bootstrap b = new Bootstrap();
@@ -93,9 +93,9 @@ final class NettyHttpClient {
             b.handler(new NettyHttpClientInitializer(configureSsl(), host, port, handler));
             channel = b.connect().syncUninterruptibly().channel();
             System.out.println("Connected to [" + host + ':' + port + "][channelId=" + channel.id() + ']');
-        } catch (final Exception e) {
-            e.printStackTrace();
+        } catch (SSLException e) {
             workerGroup.shutdownGracefully();
+            throw e;
         }
     }
 
@@ -111,6 +111,19 @@ final class NettyHttpClient {
                                         SelectedProtocol.HTTP_2.protocolName(),
                                         SelectedProtocol.HTTP_1_1.protocolName()))
                                 .build();
+    }
+
+    void disconnect() {
+        if (channel != null) {
+            channel.close().syncUninterruptibly();
+            workerGroup.shutdownGracefully().syncUninterruptibly();
+            channel = null;
+            workerGroup = null;
+        }
+    }
+
+    boolean isConnected() {
+        return channel != null && channel.isOpen();
     }
 
     void createSubscription(final String subscribeUrl) throws Exception {
@@ -152,17 +165,6 @@ final class NettyHttpClient {
                 .scheme(SCHEME);
     }
 
-    void disconnect() {
-        if (channel != null) {
-            channel.close();
-            workerGroup.shutdownGracefully();
-        }
-    }
-
-    boolean isConnected() {
-        return channel != null && channel.isOpen();
-    }
-
     static class Builder {
 
         private String host = "localhost";
@@ -171,8 +173,7 @@ final class NettyHttpClient {
         private EventHandler handler;
 
         public Builder(final EventHandler handler) {
-            Objects.requireNonNull(handler, "handler");
-            this.handler = handler;
+            this.handler = Objects.requireNonNull(handler, "handler");
         }
 
         public Builder host(final String host) {

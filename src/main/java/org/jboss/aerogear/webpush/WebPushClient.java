@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.webpush;
 
+import javax.net.ssl.SSLException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,7 +30,6 @@ public class WebPushClient {
             = new ConcurrentHashMap<>();
 
     private final NettyHttpClient httpClient;
-    private volatile boolean connected;
 
     public WebPushClient() {
         httpClient = new NettyHttpClient.Builder(new CallbackHandler())
@@ -96,28 +96,30 @@ public class WebPushClient {
     }
 
     private void connect() {
-        if (connected) {
+        if (httpClient.isConnected()) {
             return;
         }
         synchronized (this) {
-            if (connected) {
+            if (httpClient.isConnected()) {
                 return;
             }
-            connected = true;
+            try {
+                httpClient.connect();
+            } catch (SSLException e) {
+                e.printStackTrace();
+            }
         }
-        //TODO implement connect
     }
 
     public void disconnect() {
-        if (!connected) {
+        if (!httpClient.isConnected()) {
             return;
         }
         synchronized (this) {
-            if (!connected) {
+            if (!httpClient.isConnected()) {
                 return;
             }
-            connected = false;
+            httpClient.disconnect();
         }
-        //TODO implement disconnect
     }
 }
