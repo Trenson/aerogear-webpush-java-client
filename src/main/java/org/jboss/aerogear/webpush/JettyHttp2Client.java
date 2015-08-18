@@ -47,7 +47,7 @@ class JettyHttp2Client {
 
     private Session session;
 
-    JettyHttp2Client(final String host, final int port, final String pathPrefix) {
+    JettyHttp2Client(final String host, final int port, final String pathPrefix, final boolean trustAll) {
         Objects.requireNonNull(host, "host");
         Objects.requireNonNull(pathPrefix, "pathPrefix");
         if (port < 0 || port > 65535) {
@@ -58,7 +58,7 @@ class JettyHttp2Client {
         this.serverUri = "https://" + host + ":" + port + pathPrefix;
 
         client = new HTTP2Client();
-        sslContextFactory = new SslContextFactory();
+        sslContextFactory = new SslContextFactory(trustAll);
         client.addBean(sslContextFactory);
     }
 

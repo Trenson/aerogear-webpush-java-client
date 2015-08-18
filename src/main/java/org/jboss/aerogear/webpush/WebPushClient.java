@@ -31,17 +31,17 @@ public class WebPushClient {
     private final JettyHttp2Client http2Client;
 
     public WebPushClient() {
-        http2Client = new JettyHttp2Client("localhost", 8433, "/webpush");
+        http2Client = new JettyHttp2Client("localhost", 8443, "/webpush", true);
     }
 
-    public WebPushClient(final String webPushServerURI) {
+    public WebPushClient(final String webPushServerURI, final boolean trustAll) {
         Objects.requireNonNull(webPushServerURI, "webPushServerURI");
         final URI uri = URI.create(webPushServerURI);
-        http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), uri.getPath());
+        http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), uri.getPath(), trustAll);
     }
 
-    public WebPushClient(final String host, final int port, final String pathPrefix) {
-        http2Client = new JettyHttp2Client(host, port, pathPrefix);
+    public WebPushClient(final String host, final int port, final String pathPrefix, final boolean trustAll) {
+        http2Client = new JettyHttp2Client(host, port, pathPrefix, trustAll);
     }
 
     public void connect() throws Exception {
