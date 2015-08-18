@@ -153,7 +153,7 @@ final class NettyHttpClient {
 
     private void writeRequest(final Http2Headers headers) throws Exception {
         //TODO log request
-        ChannelFuture requestFuture = channel.writeAndFlush(headers).sync();
+        ChannelFuture requestFuture = channel.writeAndFlush(headers).sync();    //FIXME try to remove sync()
         requestFuture.sync();
     }
 

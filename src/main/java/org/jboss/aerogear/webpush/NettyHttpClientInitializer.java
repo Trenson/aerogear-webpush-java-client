@@ -80,7 +80,7 @@ class NettyHttpClientInitializer extends ChannelInitializer<SocketChannel> {
         sslHandler.handshakeFuture().addListener(new SslHandshakeListener(callback));
         pipeline.addLast("SslHandler", sslHandler);
         pipeline.addLast("Http2Handler", connectionHandler);
-        ch.pipeline().addLast("Logger", new UserEventLogger(callback));
+        pipeline.addLast("Logger", new UserEventLogger(callback));
         configureEndOfPipeline(pipeline);
     }
 
