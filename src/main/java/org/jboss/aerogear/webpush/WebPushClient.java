@@ -16,7 +16,15 @@
  */
 package org.jboss.aerogear.webpush;
 
+import org.eclipse.jetty.http.HttpFields;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http2.api.Stream;
+import org.eclipse.jetty.http2.api.Stream.Listener;
+import org.eclipse.jetty.http2.frames.HeadersFrame;
+
 import java.net.URI;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +62,25 @@ public class WebPushClient {
 
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
-        //TODO implement subscription
+        http2Client.postRequest("/subscribe", new Listener.Adapter() {
+
+            @Override
+            public void onHeaders(final Stream stream, final HeadersFrame frame) {
+                final HttpFields headers = frame.getMetaData().getFields();
+
+                final String subscriptionResource = headers.get(HttpHeader.LOCATION);
+                final List<String> links = headers.getValuesList("Link");
+                final String pushResource = ParseUtils.parseLink(links, "urn:ietf:params:push");
+                final String receiptSubscribeResource = ParseUtils.parseLink(links, "urn:ietf:params:push:receipt");
+                final LocalDateTime createdDateTime = LocalDateTime.now();  //FIXME parse header
+                final String cacheControl = headers.get(HttpHeader.CACHE_CONTROL);
+                final Long expirationTime = ParseUtils.parseMaxAge(cacheControl);
+
+                final Subscription subscription = new Subscription(subscriptionResource,
+                        pushResource, receiptSubscribeResource, createdDateTime, expirationTime);
+                consumer.accept(subscription);
+            }
+        });
     }
 
     public void deleteSubscription(final Subscription subscription) {
