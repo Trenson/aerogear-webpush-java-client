@@ -1,4 +1,4 @@
-/**
+/*
  * JBoss, Home of Professional Open Source
  * Copyright Red Hat, Inc., and individual contributors
  *
@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.webpush;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,15 +27,33 @@ public class WebPushClient {
 
     private final ConcurrentMap<Subscription, Consumer<Optional<PushMessage>>> monitoredSubscriptions
             = new ConcurrentHashMap<>();
+
+    private final NettyHttpClient httpClient;
     private volatile boolean connected;
 
-    public WebPushClient(final String webPushServerURL) {
-        Objects.requireNonNull(webPushServerURL, "webPushServerURL");
+    public WebPushClient() {
+        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
+                .build();
     }
 
-    public WebPushClient(final String host, final int port, final String path) {
+    public WebPushClient(final String webPushServerURI) {
+        Objects.requireNonNull(webPushServerURI, "webPushServerURI");
+        final URI uri = URI.create(webPushServerURI);
+        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
+                .host(uri.getHost())
+                .port(uri.getPort())
+                .pathPrefix(uri.getPath())
+                .build();
+    }
+
+    public WebPushClient(final String host, final int port, final String pathPrefix) {
         Objects.requireNonNull(host, "host");
-        Objects.requireNonNull(path, "path");
+        Objects.requireNonNull(pathPrefix, "pathPrefix");
+        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
+                .host(host)
+                .port(port)
+                .pathPrefix(pathPrefix)
+                .build();
     }
 
     public void subscribe(final Consumer<Subscription> consumer) {

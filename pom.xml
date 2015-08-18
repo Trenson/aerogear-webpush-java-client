@@ -59,6 +59,20 @@
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <jetty.npn.version>1.1.9.v20141016</jetty.npn.version>
+    <jetty.npn.path>${settings.localRepository}/org/mortbay/jetty/npn/npn-boot/${jetty.npn.version}/npn-boot-${jetty.npn.version}.jar</jetty.npn.path>
+    <jetty.alpn.version>8.1.0.v20141016</jetty.alpn.version>
+    <jetty.alpn.path>${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${jetty.alpn.version}/alpn-boot-${jetty.alpn.version}.jar</jetty.alpn.path>
+    <bootcp>${jetty.alpn.path}</bootcp>
+    <netty.version>4.1.0.Beta5</netty.version>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-codec-http2</artifactId>
+      <version>${netty.version}</version>
+    </dependency>
+  </dependencies>
 
 </project>
