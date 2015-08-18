@@ -21,19 +21,19 @@ import java.util.Objects;
 
 public class PushMessage {  //FIXME should it be serializable?
 
-    private final String data;
     private final String path;
+    private final String data;
     private final LocalDateTime createdDateTime;
     private final LocalDateTime receivedDateTime;
 
-    public PushMessage(final String data,
-                       final String path,
+    public PushMessage(final String path,
+                       final String data,
                        final LocalDateTime createdDateTime,
                        final LocalDateTime receivedDateTime) {
-        Objects.requireNonNull(data, "data");
         Objects.requireNonNull(path, "path");
-        this.data = data;
+        Objects.requireNonNull(data, "data");
         this.path = path;
+        this.data = data;
         this.createdDateTime = createdDateTime;
         this.receivedDateTime = receivedDateTime;
     }
@@ -55,10 +55,27 @@ public class PushMessage {  //FIXME should it be serializable?
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PushMessage)) {
+            return false;
+        }
+        PushMessage that = (PushMessage) o;
+        return path.equals(that.path);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path);
+    }
+
+    @Override
     public String toString() {
         return "PushMessage{" +
-                "data='" + data + '\'' +
-                ", path='" + path + '\'' +
+                "path='" + path + '\'' +
+                ", data='" + data + '\'' +
                 ", createdDateTime=" + createdDateTime +
                 ", receivedDateTime=" + receivedDateTime +
                 '}';
