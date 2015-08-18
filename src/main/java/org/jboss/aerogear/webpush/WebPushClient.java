@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.webpush;
 
-import javax.net.ssl.SSLException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,42 +28,37 @@ public class WebPushClient {
     private final ConcurrentMap<Subscription, Consumer<Optional<PushMessage>>> monitoredSubscriptions
             = new ConcurrentHashMap<>();
 
-    private final NettyHttpClient httpClient;
+    private final JettyHttp2Client http2Client;
 
     public WebPushClient() {
-        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
-                .build();
+        http2Client = new JettyHttp2Client("localhost", 8433, "/webpush");
     }
 
     public WebPushClient(final String webPushServerURI) {
         Objects.requireNonNull(webPushServerURI, "webPushServerURI");
         final URI uri = URI.create(webPushServerURI);
-        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
-                .host(uri.getHost())
-                .port(uri.getPort())
-                .pathPrefix(uri.getPath())
-                .build();
+        http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), uri.getPath());
     }
 
     public WebPushClient(final String host, final int port, final String pathPrefix) {
-        Objects.requireNonNull(host, "host");
-        Objects.requireNonNull(pathPrefix, "pathPrefix");
-        httpClient = new NettyHttpClient.Builder(new CallbackHandler())
-                .host(host)
-                .port(port)
-                .pathPrefix(pathPrefix)
-                .build();
+        http2Client = new JettyHttp2Client(host, port, pathPrefix);
+    }
+
+    public void connect() throws Exception {
+        http2Client.connect();
+    }
+
+    public void disconnect() throws Exception {
+        http2Client.disconnect();
     }
 
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
-        connect();
         //TODO implement subscription
     }
 
     public void deleteSubscription(final Subscription subscription) {
         Objects.requireNonNull(subscription, "subscription");
-        connect();
         cancelMonitoring(subscription);
         //TODO implement delete subscription
     }
@@ -82,7 +76,6 @@ public class WebPushClient {
         if (prevConsumer != null) {
             return; //this subscription has already monitored
         }
-        connect();
         //TODO implement monitor
     }
 
@@ -91,35 +84,6 @@ public class WebPushClient {
         if (consumer == null) {
             return; //this subscription is not monitored
         }
-        connect();
         //TODO implement cancel monitoring
-    }
-
-    private void connect() {
-        if (httpClient.isConnected()) {
-            return;
-        }
-        synchronized (this) {
-            if (httpClient.isConnected()) {
-                return;
-            }
-            try {
-                httpClient.connect();
-            } catch (SSLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void disconnect() {
-        if (!httpClient.isConnected()) {
-            return;
-        }
-        synchronized (this) {
-            if (!httpClient.isConnected()) {
-                return;
-            }
-            httpClient.disconnect();
-        }
     }
 }
