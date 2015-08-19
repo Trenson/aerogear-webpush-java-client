@@ -91,8 +91,9 @@ public class WebPushClient {
                 final String cacheControl = headers.get(HttpHeader.CACHE_CONTROL);
                 final Long expirationTime = ParseUtils.parseMaxAge(cacheControl);
 
-                final Subscription subscription = new Subscription(subscriptionResource,
-                        pushResource, receiptSubscribeResource, createdDateTime, expirationTime);
+                final Subscription subscription =
+                        new Subscription(subscriptionResource, pushResource, receiptSubscribeResource, createdDateTime,
+                                expirationTime);
                 consumer.accept(subscription);
             }
         });
@@ -140,8 +141,7 @@ public class WebPushClient {
                     consumer.accept(Optional.empty());
                     return;
                 } else if (builder == null) {
-                    throw new IllegalStateException(
-                            "PushMessage.Builder must be initialized before HEADERS frame");
+                    throw new IllegalStateException("PushMessage.Builder must be initialized before HEADERS frame");
                 }
                 builder.receivedDateTime(LocalDateTime.now())   //TODO parse "date" header
                         .createdDateTime(null);   //TODO parse "last-modified" header
@@ -150,8 +150,7 @@ public class WebPushClient {
             @Override
             public void onData(Stream stream, DataFrame frame, Callback callback) {
                 if (builder == null) {
-                    throw new IllegalStateException(
-                            "PushMessage.Builder must be initialized before DATA frame");
+                    throw new IllegalStateException("PushMessage.Builder must be initialized before DATA frame");
                 }
                 //TODO optimize data read
                 final ByteBuffer dataBuffer = frame.getData();
@@ -161,11 +160,16 @@ public class WebPushClient {
                 if (frame.isEndStream()) {
                     Optional<PushMessage> pushMessage = Optional.of(builder.build());
                     builder = null;
-                    //TODO send ack
+                    acknowledge(pushMessage.get());
                     consumer.accept(pushMessage);
                 }
             }
         }, nowait ? HTTP_FIELDS_WITH_PREFER_HEADER : null);
+    }
+
+    private void acknowledge(final PushMessage pushMessage) {
+        Objects.requireNonNull(pushMessage, "pushMessage");
+        http2Client.deleteRequest(pushMessage.path(), new Listener.Adapter());
     }
 
     public void cancelMonitoring(final Subscription subscription) {
