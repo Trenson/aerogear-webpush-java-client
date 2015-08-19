@@ -177,6 +177,6 @@ public class WebPushClient {
         if (consumer == null) {
             return; //this subscription is not monitored
         }
-        //TODO implement cancel monitoring
+        //TODO implement cancel monitoring when WebPush Server will support this function
     }
 }
