@@ -47,15 +47,14 @@ class JettyHttp2Client {
 
     private Session session;
 
-    JettyHttp2Client(final String host, final int port, final String pathPrefix, final boolean trustAll) {
+    JettyHttp2Client(final String host, final int port, final boolean trustAll) {
         Objects.requireNonNull(host, "host");
-        Objects.requireNonNull(pathPrefix, "pathPrefix");
         if (port < 0 || port > 65535) {
             throw new IllegalArgumentException("port value must be between 0 and 65535, current value: " + port);
         }
         this.host = host;
         this.port = port;
-        this.serverUri = "https://" + host + ":" + port + pathPrefix;
+        this.serverUri = "https://" + host + ":" + port;
 
         client = new HTTP2Client();
         sslContextFactory = new SslContextFactory(trustAll);

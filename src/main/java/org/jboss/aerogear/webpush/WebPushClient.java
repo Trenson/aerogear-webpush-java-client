@@ -39,17 +39,17 @@ public class WebPushClient {
     private final JettyHttp2Client http2Client;
 
     public WebPushClient() {
-        http2Client = new JettyHttp2Client("localhost", 8443, "/webpush", true);
+        http2Client = new JettyHttp2Client("localhost", 8443, true);
     }
 
     public WebPushClient(final String webPushServerURI, final boolean trustAll) {
         Objects.requireNonNull(webPushServerURI, "webPushServerURI");
         final URI uri = URI.create(webPushServerURI);
-        http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), uri.getPath(), trustAll);
+        http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), trustAll);
     }
 
-    public WebPushClient(final String host, final int port, final String pathPrefix, final boolean trustAll) {
-        http2Client = new JettyHttp2Client(host, port, pathPrefix, trustAll);
+    public WebPushClient(final String host, final int port, final boolean trustAll) {
+        http2Client = new JettyHttp2Client(host, port, trustAll);
     }
 
     public void connect() throws Exception {
@@ -62,7 +62,7 @@ public class WebPushClient {
 
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
-        http2Client.postRequest("/subscribe", new Listener.Adapter() {
+        http2Client.postRequest("/webpush/subscribe", new Listener.Adapter() {
 
             @Override
             public void onHeaders(final Stream stream, final HeadersFrame frame) {
