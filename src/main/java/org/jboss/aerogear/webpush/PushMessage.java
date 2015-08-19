@@ -26,16 +26,14 @@ public class PushMessage {  //FIXME should it be serializable?
     private final LocalDateTime createdDateTime;
     private final LocalDateTime receivedDateTime;
 
-    public PushMessage(final String path,
-                       final String data,
-                       final LocalDateTime createdDateTime,
-                       final LocalDateTime receivedDateTime) {
-        Objects.requireNonNull(path, "path");
-        Objects.requireNonNull(data, "data");
-        this.path = path;
-        this.data = data;
-        this.createdDateTime = createdDateTime;
-        this.receivedDateTime = receivedDateTime;
+    private PushMessage(final Builder builder) {
+        path = Objects.requireNonNull(builder.path, "path");
+        if (builder.data.length() == 0) {
+            throw new IllegalArgumentException("data is empty");
+        }
+        data = builder.data.toString();
+        createdDateTime = builder.createdDateTime;
+        receivedDateTime = builder.receivedDateTime;
     }
 
     public String data() {
@@ -74,10 +72,41 @@ public class PushMessage {  //FIXME should it be serializable?
     @Override
     public String toString() {
         return "PushMessage{" +
-                "path='" + path + '\'' +
-                ", data='" + data + '\'' +
-                ", createdDateTime=" + createdDateTime +
-                ", receivedDateTime=" + receivedDateTime +
-                '}';
+                "\n\tpath='" + path + "'," +
+                "\n\tdata='" + data + "'," +
+                "\n\tcreatedDateTime=" + createdDateTime + ',' +
+                "\n\treceivedDateTime=" + receivedDateTime +
+                "\n}";
+    }
+
+    public static class Builder {
+
+        private final String path;
+        private StringBuilder data = new StringBuilder();
+        private LocalDateTime createdDateTime;
+        private LocalDateTime receivedDateTime;
+
+        public Builder(final String path) {
+            this.path = path;
+        }
+
+        public Builder addDataFrame(final String data) {
+            this.data.append(data);
+            return this;
+        }
+
+        public Builder createdDateTime(final LocalDateTime createdDateTime) {
+            this.createdDateTime = createdDateTime;
+            return this;
+        }
+
+        public Builder receivedDateTime(final LocalDateTime receivedDateTime) {
+            this.receivedDateTime = receivedDateTime;
+            return this;
+        }
+
+        public PushMessage build() {
+            return new PushMessage(this);
+        }
     }
 }

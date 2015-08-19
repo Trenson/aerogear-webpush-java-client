@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.webpush;
 
+import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpURI;
 import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.http.MetaData.Request;
@@ -74,21 +75,22 @@ class JettyHttp2Client {
         session = null;
     }
 
-    public void getRequest(final String path, final Listener listener) {
-        sendRequest(GET, path, listener);
+    public void getRequest(final String path, final Listener listener, final HttpFields httpFields) {
+        sendRequest(GET, path, listener, httpFields);
     }
 
     public void postRequest(final String path, final Listener listener) {
-        sendRequest(POST, path, listener);
+        sendRequest(POST, path, listener, null);
     }
 
     public void deleteRequest(final String path, final Listener listener) {
-        sendRequest(DELETE, path, listener);
+        sendRequest(DELETE, path, listener, null);
     }
 
-    private void sendRequest(final String method, final String path, final Listener responseListener) {
+    private void sendRequest(final String method, final String path,
+                             final Listener responseListener, final HttpFields httpFields) {
         //FIXME be sure that session created
-        Request requestMetaData = new Request(method, new HttpURI(serverUri + path), HttpVersion.HTTP_2, null);
+        Request requestMetaData = new Request(method, new HttpURI(serverUri + path), HttpVersion.HTTP_2, httpFields);
         HeadersFrame headersFrame = new HeadersFrame(0, requestMetaData, null, true);
         session.newStream(headersFrame, new Promise.Adapter<>(), responseListener);
     }

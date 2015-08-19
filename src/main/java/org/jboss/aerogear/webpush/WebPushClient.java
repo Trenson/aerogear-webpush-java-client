@@ -18,11 +18,19 @@ package org.jboss.aerogear.webpush;
 
 import org.eclipse.jetty.http.HttpFields;
 import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.http.MetaData.Request;
+import org.eclipse.jetty.http.MetaData.Response;
 import org.eclipse.jetty.http2.api.Stream;
 import org.eclipse.jetty.http2.api.Stream.Listener;
+import org.eclipse.jetty.http2.frames.DataFrame;
 import org.eclipse.jetty.http2.frames.HeadersFrame;
+import org.eclipse.jetty.http2.frames.PushPromiseFrame;
+import org.eclipse.jetty.util.Callback;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +40,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
 public class WebPushClient {
+
+    private static final HttpFields HTTP_FIELDS_WITH_PREFER_HEADER;
+
+    static {
+        HTTP_FIELDS_WITH_PREFER_HEADER = new HttpFields();
+        HTTP_FIELDS_WITH_PREFER_HEADER.add("prefer", "wait=0");
+    }
 
     private final ConcurrentMap<Subscription, Consumer<Optional<PushMessage>>> monitoredSubscriptions
             = new ConcurrentHashMap<>();
@@ -90,19 +105,67 @@ public class WebPushClient {
     }
 
     public void monitor(final Subscription subscription, final Consumer<Optional<PushMessage>> consumer) {
-        monitor(subscription, consumer, false);
+        monitor(subscription, false, consumer);
     }
 
     public void monitor(final Subscription subscription,
-                        final Consumer<Optional<PushMessage>> consumer,
-                        final boolean nowait) {
+                        final boolean nowait,
+                        final Consumer<Optional<PushMessage>> consumer) {
         Objects.requireNonNull(subscription, "subscription");
         Objects.requireNonNull(consumer, "pushMessageConsumer");
         final Consumer<Optional<PushMessage>> prevConsumer = monitoredSubscriptions.putIfAbsent(subscription, consumer);
         if (prevConsumer != null) {
             return; //this subscription has already monitored
         }
-        //TODO implement monitor
+        http2Client.getRequest(subscription.subscriptionResource(), new Listener.Adapter() {
+
+            private PushMessage.Builder builder;
+
+            @Override
+            public Listener onPush(Stream stream, PushPromiseFrame frame) {
+                if (builder != null) {
+                    throw new IllegalStateException(
+                            "PushMessage.Builder must not be initialized before PUSH_PROMISE frame");
+                }
+                final Request request = (Request) frame.getMetaData();
+                final String pushMessagePath = request.getURI().getPath();
+                builder = new PushMessage.Builder(pushMessagePath);
+                return this;
+            }
+
+            @Override
+            public void onHeaders(Stream stream, HeadersFrame frame) {
+                final Response response = (Response) frame.getMetaData();
+                if (response.getStatus() == 204) {
+                    consumer.accept(Optional.empty());
+                    return;
+                } else if (builder == null) {
+                    throw new IllegalStateException(
+                            "PushMessage.Builder must be initialized before HEADERS frame");
+                }
+                builder.receivedDateTime(LocalDateTime.now())   //TODO parse "date" header
+                        .createdDateTime(null);   //TODO parse "last-modified" header
+            }
+
+            @Override
+            public void onData(Stream stream, DataFrame frame, Callback callback) {
+                if (builder == null) {
+                    throw new IllegalStateException(
+                            "PushMessage.Builder must be initialized before DATA frame");
+                }
+                //TODO optimize data read
+                final ByteBuffer dataBuffer = frame.getData();
+                final CharBuffer charBuffer = StandardCharsets.UTF_8.decode(dataBuffer);
+                builder.addDataFrame(charBuffer.toString());
+                callback.succeeded();
+                if (frame.isEndStream()) {
+                    Optional<PushMessage> pushMessage = Optional.of(builder.build());
+                    builder = null;
+                    //TODO send ack
+                    consumer.accept(pushMessage);
+                }
+            }
+        }, nowait ? HTTP_FIELDS_WITH_PREFER_HEADER : null);
     }
 
     public void cancelMonitoring(final Subscription subscription) {

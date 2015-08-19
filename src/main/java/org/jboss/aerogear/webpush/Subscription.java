@@ -82,11 +82,11 @@ public class Subscription {  //FIXME should it be serializable?
     @Override
     public String toString() {
         return "Subscription{" +
-                "subscriptionResource='" + subscriptionResource + '\'' +
-                ", pushResource='" + pushResource + '\'' +
-                ", receiptSubscribeResource='" + receiptSubscribeResource + '\'' +
-                ", createdDateTime=" + createdDateTime +
-                ", expirationTime=" + expirationTime +
-                '}';
+                "\n\tsubscriptionResource='" + subscriptionResource + "'," +
+                "\n\tpushResource='" + pushResource + "'," +
+                "\n\treceiptSubscribeResource='" + receiptSubscribeResource + "'," +
+                "\n\tcreatedDateTime=" + createdDateTime + ',' +
+                "\n\texpirationTime=" + expirationTime +
+                "\n}";
     }
 }
