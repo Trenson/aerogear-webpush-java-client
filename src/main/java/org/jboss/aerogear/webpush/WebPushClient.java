@@ -86,7 +86,7 @@ public class WebPushClient {
     public void deleteSubscription(final Subscription subscription) {
         Objects.requireNonNull(subscription, "subscription");
         cancelMonitoring(subscription);
-        //TODO implement delete subscription
+        http2Client.deleteRequest(subscription.subscriptionResource(), new Listener.Adapter());
     }
 
     public void monitor(final Subscription subscription, final Consumer<Optional<PushMessage>> consumer) {
