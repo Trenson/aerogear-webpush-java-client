@@ -19,23 +19,21 @@ package org.jboss.aerogear.webpush;
 public class Example {
 
     public static void main(String[] args) throws Exception {
-        WebPushClient webPushClient = new WebPushClient();
+        WebPushClient webPushClient = new WebPushClient("https://localhost:8443", true);
         try {
             webPushClient.connect();
             webPushClient.subscribe(subscription -> {
                 System.out.println(subscription);
-                try {
-                    Thread.sleep(10 * 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                //check new push messages and close the stream (nowait == true)
                 webPushClient.monitor(subscription, true, pushMessage -> {
                     if (pushMessage.isPresent()) {
                         System.out.println(pushMessage.get());
-                    } else {
+                    } else {    //possible only if nowait == true
                         System.out.println("204 No Content");
                     }
                 });
+                //monitor all new push messages
+                webPushClient.monitor(subscription, System.out::println);
             });
             Thread.sleep(30 * 1000);
         } finally {
