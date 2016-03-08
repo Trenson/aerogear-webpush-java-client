@@ -16,10 +16,13 @@
  */
 package org.jboss.aerogear.webpush;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class PushMessage {  //FIXME should it be serializable?
+public final class PushMessage implements Serializable {
+
+    private static final long serialVersionUID = -5064247285257029828L;
 
     private final String path;
     private final String data;
