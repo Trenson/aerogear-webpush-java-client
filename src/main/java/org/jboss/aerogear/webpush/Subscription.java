@@ -129,7 +129,7 @@ public final class Subscription implements Serializable {
 
     @Override
     public String toString() {
-        return "Subscription{" +
+        return "Subscription {" +
                 "\n\tsubscriptionResource='" + subscriptionResource + "'," +
                 "\n\tpushResource='" + pushResource + "'," +
                 "\n\treceiptSubscribeResource='" + receiptSubscribeResource + "'," +

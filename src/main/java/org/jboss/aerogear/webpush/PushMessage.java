@@ -110,7 +110,7 @@ public final class PushMessage implements Serializable {
 
     @Override
     public String toString() {
-        return "PushMessage{" +
+        return "PushMessage {" +
                 "\n\tresource='" + resource + "'," +
                 "\n\tdata='" + data + "'," +
                 "\n\tcreatedDateTime=" + createdDateTime + ',' +
