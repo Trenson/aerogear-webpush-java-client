@@ -67,7 +67,6 @@
     <jetty.alpn.version>8.1.0.v20141016</jetty.alpn.version>
     <jetty.alpn.path>${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/${jetty.alpn.version}/alpn-boot-${jetty.alpn.version}.jar</jetty.alpn.path>
     <bootcp>${jetty.alpn.path}</bootcp>
-    <netty.version>4.1.0.Beta5</netty.version>
   </properties>
 
   <dependencies>
