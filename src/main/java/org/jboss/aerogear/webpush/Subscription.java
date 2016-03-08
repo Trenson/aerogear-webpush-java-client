@@ -20,6 +20,18 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Object which holds subscription information:
+ * <ul>
+ *     <li>subscription resource, see {@link #subscriptionResource()}</li>
+ *     <li>push resource, see {@link #pushResource()}</li>
+ *     <li>receipt subscribe resource, see {@link #receiptSubscribeResource()}</li>
+ *     <li>created date-time, see {@link #createdDateTime()}</li>
+ *     <li>expiration time, see {@link #expirationTime()}</li>
+ * </ul>
+ *
+ * New subscription object will be created by {@link WebPushClient}.
+ */
 public final class Subscription implements Serializable {
 
     private static final long serialVersionUID = 1229410345785780151L;
@@ -38,22 +50,62 @@ public final class Subscription implements Serializable {
         expirationTime = builder.expirationTime;
     }
 
-    public String subscriptionResource() {
+    /**
+     * A subscription resource is used to receive messages from a subscription and to delete a subscription
+     * (see <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-6">Section 6</a>
+     *  of WebPush protocol specification).
+     *
+     * The {@code Location} header field is used to identify subscription resource.
+     * It is private to the user agent and should not be shared with its application server.
+     *
+     * @return subscription resource URI on WebPush Server.
+     */
+    public String subscriptionResource() { //TODO consider to make it package-private
         return subscriptionResource;
     }
 
+    /**
+     * A push resource is used to send messages to a subscription
+     * (see <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-5">Section 5</a>
+     *  of WebPush protocol specification).
+     *
+     * A link relation of type "urn:ietf:params:push" is used to identity a receipt subscribe resource.
+     * It is public and shared by the user agent with its application server.
+     *
+     * @return push resource URI on WebPush Server.
+     */
     public String pushResource() {
         return pushResource;
     }
 
+    /**
+     * A receipt subscribe resource is used by an application server to create a receipt subscription
+     * (see <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-4">Section 4</a>
+     *  of WebPush protocol specification).
+     *
+     * A link relation of type "urn:ietf:params:push:receipt" is used to identity a receipt subscribe resource.
+     * It is public and shared by the user agent with its application server.
+     *
+     * @return receipt subscribe resource URI on WebPush Server.
+     */
     public String receiptSubscribeResource() {
         return receiptSubscribeResource;
     }
 
+    /**
+     * Date-time when subscription resource was created on the WebPush Server.
+     *
+     * @return created date-time.
+     */
     public LocalDateTime createdDateTime() {
         return createdDateTime;
     }
 
+    /**
+     * Expiration time for current subscription on WebPush Server.
+     *
+     * @return expiration time in milli seconds.
+     */
     public long expirationTime() {
         return expirationTime;
     }
