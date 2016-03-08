@@ -42,6 +42,26 @@ import java.util.function.Consumer;
 /**
  * Asynchronous HTTP/2 client for
  * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00">WebPush protocol</a>.
+ *
+ * <p>Example of WebPushClient usage:
+ * <pre>{@code
+ *     WebPushClient webPushClient = new WebPushClient("https://localhost:8443", true);
+ *     try {
+ *         webPushClient.connect(); //connect to the WebPush Server
+ *         webPushClient.subscribe(subscription -> {    //create subscription
+ *             webPushClient.monitor(subscription, true, pushMessage -> {   //monitor without waiting of new messages
+ *                 if (pushMessage.isPresent()) {
+ *                     System.out.println(pushMessage.get());   //handle push message
+ *                 } else {    //possible only if nowait == true
+ *                     System.out.println("204 No Content");    //there are no new messages on the WebPush Server
+ *                 }
+ *             });
+ *             webPushClient.monitor(subscription, System.out::println);    //monitor all new push messages
+ *         });
+ *     } finally {
+ *         webPushClient.disconnect();  //disconnect from the WebPush Server
+ *     }
+ * }</pre>
  */
 public class WebPushClient {
 
