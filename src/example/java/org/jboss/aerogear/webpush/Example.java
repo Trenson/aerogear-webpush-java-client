@@ -16,6 +16,14 @@
  */
 package org.jboss.aerogear.webpush;
 
+/**
+ * For a quick run, debugging and learning purposes only.
+ * <p>
+ * To run this example add suitable
+ * <a href="http://www.eclipse.org/jetty/documentation/current/alpn-chapter.html#alpn-versions">alpn-boot</a>
+ * to your classpath. For JDK 8u74:
+ * {@code -Xbootclasspath/p:${settings.localRepository}/org/mortbay/jetty/alpn/alpn-boot/8.1.7.v20160121/alpn-boot-8.1.7.v20160121.jar}
+ */
 final class Example {
 
     public static void main(String[] args) throws Exception {
