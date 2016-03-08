@@ -39,6 +39,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 
+/**
+ * Asynchronous HTTP/2 client for
+ * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00">WebPush protocol</a>.
+ */
 public class WebPushClient {
 
     private static final HttpFields HTTP_FIELDS_WITH_PREFER_HEADER;
@@ -53,28 +57,66 @@ public class WebPushClient {
 
     private final JettyHttp2Client http2Client;
 
+    /**
+     * Creates WebPush client which will work with local WebPush Server on port 8443
+     * and will blindly trust all SSL certificates.
+     */
     public WebPushClient() {
         http2Client = new JettyHttp2Client("localhost", 8443, true);
     }
 
+    /**
+     * Creates WebPush client which will work with your WebPush Server.
+     *
+     * @param webPushServerURI URI for your WebPush Server, example: {@code https://localhost:8443}.
+     * @param trustAll         whether to blindly trust all certificates.
+     */
     public WebPushClient(final String webPushServerURI, final boolean trustAll) {
         Objects.requireNonNull(webPushServerURI, "webPushServerURI");
         final URI uri = URI.create(webPushServerURI);
         http2Client = new JettyHttp2Client(uri.getHost(), uri.getPort(), trustAll);
     }
 
+    /**
+     * Creates WebPush client which will work with your WebPush Server.
+     *
+     * @param host     host for your WebPush Server.
+     * @param port     port for your WebPush Server.
+     * @param trustAll whether to blindly trust all certificates.
+     */
     public WebPushClient(final String host, final int port, final boolean trustAll) {
         http2Client = new JettyHttp2Client(host, port, trustAll);
     }
 
+    /**
+     * Opens connection to WebPush Server.
+     * This method has to be invoked before any other methods of this class.
+     *
+     * @throws Exception if something goes wrong.
+     */
     public void connect() throws Exception {
         http2Client.connect();
     }
 
+    /**
+     * Disconnects from the server.
+     * This method has to be invoked manually to free connection resources.
+     *
+     * @throws Exception if something goes wrong.
+     */
     public void disconnect() throws Exception {
         http2Client.disconnect();
     }
 
+    /**
+     * Creates new subscription on WebPush Server.
+     *
+     * This method implements
+     * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-3">Section 3:
+     * Subscribing for Push Messages</a> of WebPush protocol specification.
+     *
+     * @param consumer will be invoked when a new subscription is created.
+     */
     public void subscribe(final Consumer<Subscription> consumer) {
         Objects.requireNonNull(consumer, "subscriptionConsumer");
         http2Client.postRequest("/webpush/subscribe", new Listener.Adapter() {
@@ -101,16 +143,47 @@ public class WebPushClient {
         });
     }
 
+    /**
+     * Removes specified subscription from the WebPush Server, see
+     * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-7.3">Section 7.3:
+     * Subscription Expiration</a> of WebPush protocol specification.
+     *
+     * This method also invoked {@link #cancelMonitoring(Subscription)} for the specified subscription.
+     *
+     * @param subscription which will be removed.
+     */
     public void deleteSubscription(final Subscription subscription) {
         Objects.requireNonNull(subscription, "subscription");
         cancelMonitoring(subscription);
         http2Client.deleteRequest(subscription.subscriptionResource(), new Listener.Adapter());
     }
 
+    /**
+     * Enables monitoring of new push messages.
+     *
+     * This method implements
+     * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-6">Section 6:
+     * Receiving Push Messages</a> of WebPush protocol specification.
+     *
+     * @param subscription for monitoring.
+     * @param consumer     will be invoked when a new push message is received.
+     */
     public void monitor(final Subscription subscription, final Consumer<Optional<PushMessage>> consumer) {
         monitor(subscription, false, consumer);
     }
 
+    /**
+     * Enables monitoring of new push messages.
+     * Allows to specify a {@code Prefer} header field with a "wait" parameter set to "0".
+     *
+     * This method implements
+     * <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-6">Section 6:
+     * Receiving Push Messages</a> of WebPush protocol specification.
+     *
+     * @param subscription for monitoring.
+     * @param nowait       adds {@code Prefer} header with {@code wait=0}.
+     * @param consumer     will be invoked when a new push message is received.
+     */
     public void monitor(final Subscription subscription,
                         final boolean nowait,
                         final Consumer<Optional<PushMessage>> consumer) {
@@ -175,6 +248,11 @@ public class WebPushClient {
         http2Client.deleteRequest(pushMessage.resource(), new Listener.Adapter());
     }
 
+    /**
+     * Cancels monitoring for specified subscription.
+     *
+     * @param subscription for which monitoring should be canceled.
+     */
     public void cancelMonitoring(final Subscription subscription) {
         final Consumer<Optional<PushMessage>> consumer = monitoredSubscriptions.remove(subscription);
         if (consumer == null) {
