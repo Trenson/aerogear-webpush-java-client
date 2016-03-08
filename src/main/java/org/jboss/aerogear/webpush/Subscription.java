@@ -30,19 +30,12 @@ public class Subscription implements Serializable {
     private final LocalDateTime createdDateTime;
     private final Long expirationTime;  //FIXME may be primitive type is preferable
 
-    public Subscription(final String subscriptionResource,
-                        final String pushResource,
-                        final String receiptSubscribeResource,
-                        final LocalDateTime createdDateTime,
-                        final Long expirationTime) {
-        Objects.requireNonNull(subscriptionResource, "subscriptionResource");
-        Objects.requireNonNull(pushResource, "pushResource");
-        Objects.requireNonNull(receiptSubscribeResource, "receiptSubscribeResource");
-        this.subscriptionResource = subscriptionResource;
-        this.pushResource = pushResource;
-        this.receiptSubscribeResource = receiptSubscribeResource;
-        this.createdDateTime = createdDateTime;
-        this.expirationTime = expirationTime;
+    public Subscription(final Builder builder) {
+        subscriptionResource = Objects.requireNonNull(builder.subscriptionResource, "subscriptionResource");
+        pushResource = Objects.requireNonNull(builder.pushResource, "pushResource");
+        receiptSubscribeResource = Objects.requireNonNull(builder.receiptSubscribeResource, "receiptSubscribeResource");
+        createdDateTime = builder.createdDateTime;
+        expirationTime = builder.expirationTime;
     }
 
     public String subscriptionResource() {
@@ -91,5 +84,42 @@ public class Subscription implements Serializable {
                 "\n\tcreatedDateTime=" + createdDateTime + ',' +
                 "\n\texpirationTime=" + expirationTime +
                 "\n}";
+    }
+
+    public static class Builder {
+
+        private final String subscriptionResource;
+        private String pushResource;
+        private String receiptSubscribeResource;
+        private LocalDateTime createdDateTime;
+        private Long expirationTime;
+
+        public Builder(final String subscriptionResource) {
+            this.subscriptionResource = subscriptionResource;
+        }
+
+        public Builder setPushResource(String pushResource) {
+            this.pushResource = pushResource;
+            return this;
+        }
+
+        public Builder setReceiptSubscribeResource(String receiptSubscribeResource) {
+            this.receiptSubscribeResource = receiptSubscribeResource;
+            return this;
+        }
+
+        public Builder setCreatedDateTime(LocalDateTime createdDateTime) {
+            this.createdDateTime = createdDateTime;
+            return this;
+        }
+
+        public Builder setExpirationTime(Long expirationTime) {
+            this.expirationTime = expirationTime;
+            return this;
+        }
+
+        public Subscription createSubscription() {
+            return new Subscription(this);
+        }
     }
 }

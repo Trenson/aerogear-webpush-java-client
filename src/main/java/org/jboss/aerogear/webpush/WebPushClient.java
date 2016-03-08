@@ -91,9 +91,11 @@ public class WebPushClient {
                 final String cacheControl = headers.get(HttpHeader.CACHE_CONTROL);
                 final Long expirationTime = ParseUtils.parseMaxAge(cacheControl);
 
-                final Subscription subscription =
-                        new Subscription(subscriptionResource, pushResource, receiptSubscribeResource, createdDateTime,
-                                expirationTime);
+                final Subscription subscription = new Subscription.Builder(subscriptionResource)
+                        .setPushResource(pushResource)
+                        .setReceiptSubscribeResource(receiptSubscribeResource)
+                        .setCreatedDateTime(createdDateTime).setExpirationTime(expirationTime)
+                        .createSubscription();
                 consumer.accept(subscription);
             }
         });
