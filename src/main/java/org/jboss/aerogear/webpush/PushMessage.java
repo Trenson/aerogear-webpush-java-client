@@ -24,13 +24,13 @@ public final class PushMessage implements Serializable {
 
     private static final long serialVersionUID = -5064247285257029828L;
 
-    private final String path;
+    private final String resource;
     private final String data;
     private final LocalDateTime createdDateTime;
     private final LocalDateTime receivedDateTime;
 
     private PushMessage(final Builder builder) {
-        path = Objects.requireNonNull(builder.path, "path");
+        resource = Objects.requireNonNull(builder.resource, "resource");
         if (builder.data.length() == 0) {
             throw new IllegalArgumentException("data is empty");
         }
@@ -39,12 +39,12 @@ public final class PushMessage implements Serializable {
         receivedDateTime = builder.receivedDateTime;
     }
 
-    public String data() {
-        return data;
+    public String resource() {
+        return resource;
     }
 
-    public String path() {
-        return path;
+    public String data() {
+        return data;
     }
 
     public LocalDateTime createdDateTime() {
@@ -64,18 +64,18 @@ public final class PushMessage implements Serializable {
             return false;
         }
         PushMessage that = (PushMessage) o;
-        return path.equals(that.path);
+        return resource.equals(that.resource);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(path);
+        return Objects.hash(resource);
     }
 
     @Override
     public String toString() {
         return "PushMessage{" +
-                "\n\tpath='" + path + "'," +
+                "\n\tresource='" + resource + "'," +
                 "\n\tdata='" + data + "'," +
                 "\n\tcreatedDateTime=" + createdDateTime + ',' +
                 "\n\treceivedDateTime=" + receivedDateTime +
@@ -84,13 +84,13 @@ public final class PushMessage implements Serializable {
 
     static class Builder {
 
-        private final String path;
+        private final String resource;
         private final StringBuilder data = new StringBuilder();
         private LocalDateTime createdDateTime;
         private LocalDateTime receivedDateTime;
 
-        Builder(final String path) {
-            this.path = path;
+        Builder(final String resource) {
+            this.resource = resource;
         }
 
         Builder addDataFrame(final String data) {

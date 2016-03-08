@@ -172,7 +172,7 @@ public class WebPushClient {
 
     private void acknowledge(final PushMessage pushMessage) {
         Objects.requireNonNull(pushMessage, "pushMessage");
-        http2Client.deleteRequest(pushMessage.path(), new Listener.Adapter());
+        http2Client.deleteRequest(pushMessage.resource(), new Listener.Adapter());
     }
 
     public void cancelMonitoring(final Subscription subscription) {
