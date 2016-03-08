@@ -16,7 +16,7 @@
  */
 package org.jboss.aerogear.webpush;
 
-public class Example {
+public final class Example {
 
     public static void main(String[] args) throws Exception {
         WebPushClient webPushClient = new WebPushClient("https://localhost:8443", true);

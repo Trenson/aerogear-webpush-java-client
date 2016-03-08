@@ -85,7 +85,7 @@ public final class PushMessage implements Serializable {
     public static class Builder {
 
         private final String path;
-        private StringBuilder data = new StringBuilder();
+        private final StringBuilder data = new StringBuilder();
         private LocalDateTime createdDateTime;
         private LocalDateTime receivedDateTime;
 

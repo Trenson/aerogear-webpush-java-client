@@ -142,7 +142,8 @@ public class WebPushClient {
                 if (response.getStatus() == 204) {
                     consumer.accept(Optional.empty());
                     return;
-                } else if (builder == null) {
+                }
+                if (builder == null) {
                     throw new IllegalStateException("PushMessage.Builder must be initialized before HEADERS frame");
                 }
                 builder.receivedDateTime(LocalDateTime.now())   //TODO parse "date" header

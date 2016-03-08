@@ -32,18 +32,18 @@ final class ParseUtils {
         Objects.requireNonNull(linkHeaders, "linkHeaders");
         Objects.requireNonNull(rel, "rel");
         for (final String link : linkHeaders) {
-            Matcher m = REL.matcher(link);
-            if (m.find() && rel.equals(m.group(1))) {
+            Matcher matcher = REL.matcher(link);
+            if (matcher.find() && rel.equals(matcher.group(1))) {
                 return link.substring(1, link.lastIndexOf('>'));
             }
         }
         return null;
     }
 
-    public static Long parseMaxAge(String cacheControl) {
-        Matcher m = DIGITS.matcher(cacheControl);
-        if (m.find()) {
-            return Long.valueOf(m.group(0));
+    public static Long parseMaxAge(final CharSequence cacheControl) {
+        Matcher matcher = DIGITS.matcher(cacheControl);
+        if (matcher.find()) {
+            return Long.valueOf(matcher.group(0));
         }
         return null;
     }
