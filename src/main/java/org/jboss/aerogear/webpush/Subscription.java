@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public class Subscription implements Serializable {
+public final class Subscription implements Serializable {
 
     private static final long serialVersionUID = 1229410345785780151L;
 
@@ -30,7 +30,7 @@ public class Subscription implements Serializable {
     private final LocalDateTime createdDateTime;
     private final Long expirationTime;  //FIXME may be primitive type is preferable
 
-    public Subscription(final Builder builder) {
+    private Subscription(final Builder builder) {
         subscriptionResource = Objects.requireNonNull(builder.subscriptionResource, "subscriptionResource");
         pushResource = Objects.requireNonNull(builder.pushResource, "pushResource");
         receiptSubscribeResource = Objects.requireNonNull(builder.receiptSubscribeResource, "receiptSubscribeResource");
@@ -86,7 +86,7 @@ public class Subscription implements Serializable {
                 "\n}";
     }
 
-    public static class Builder {
+    static class Builder {
 
         private final String subscriptionResource;
         private String pushResource;
@@ -94,31 +94,31 @@ public class Subscription implements Serializable {
         private LocalDateTime createdDateTime;
         private Long expirationTime;
 
-        public Builder(final String subscriptionResource) {
+        Builder(final String subscriptionResource) {
             this.subscriptionResource = subscriptionResource;
         }
 
-        public Builder setPushResource(String pushResource) {
+        Builder setPushResource(String pushResource) {
             this.pushResource = pushResource;
             return this;
         }
 
-        public Builder setReceiptSubscribeResource(String receiptSubscribeResource) {
+        Builder setReceiptSubscribeResource(String receiptSubscribeResource) {
             this.receiptSubscribeResource = receiptSubscribeResource;
             return this;
         }
 
-        public Builder setCreatedDateTime(LocalDateTime createdDateTime) {
+        Builder setCreatedDateTime(LocalDateTime createdDateTime) {
             this.createdDateTime = createdDateTime;
             return this;
         }
 
-        public Builder setExpirationTime(Long expirationTime) {
+        Builder setExpirationTime(Long expirationTime) {
             this.expirationTime = expirationTime;
             return this;
         }
 
-        public Subscription createSubscription() {
+        Subscription createSubscription() {
             return new Subscription(this);
         }
     }

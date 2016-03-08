@@ -82,33 +82,33 @@ public final class PushMessage implements Serializable {
                 "\n}";
     }
 
-    public static class Builder {
+    static class Builder {
 
         private final String path;
         private final StringBuilder data = new StringBuilder();
         private LocalDateTime createdDateTime;
         private LocalDateTime receivedDateTime;
 
-        public Builder(final String path) {
+        Builder(final String path) {
             this.path = path;
         }
 
-        public Builder addDataFrame(final String data) {
+        Builder addDataFrame(final String data) {
             this.data.append(data);
             return this;
         }
 
-        public Builder createdDateTime(final LocalDateTime createdDateTime) {
+        Builder createdDateTime(final LocalDateTime createdDateTime) {
             this.createdDateTime = createdDateTime;
             return this;
         }
 
-        public Builder receivedDateTime(final LocalDateTime receivedDateTime) {
+        Builder receivedDateTime(final LocalDateTime receivedDateTime) {
             this.receivedDateTime = receivedDateTime;
             return this;
         }
 
-        public PushMessage build() {
+        PushMessage build() {
             return new PushMessage(this);
         }
     }
