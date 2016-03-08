@@ -20,6 +20,17 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+/**
+ * Object which holds push message information:
+ * <ul>
+ *     <li>resource, see {@link #resource()}</li>
+ *     <li>data, see {@link #data()}</li>
+ *     <li>created date-time, see {@link #createdDateTime()}</li>
+ *     <li>received date-time, see {@link #receivedDateTime()}</li>
+ * </ul>
+ *
+ * New PushMessage object will be created each time, when a new push message is received from WebPush Server.
+ */
 public final class PushMessage implements Serializable {
 
     private static final long serialVersionUID = -5064247285257029828L;
@@ -39,18 +50,43 @@ public final class PushMessage implements Serializable {
         receivedDateTime = builder.receivedDateTime;
     }
 
+    /**
+     * A push message resource is created to identify push messages that have been accepted by the push service.
+     * The push message resource is also used to acknowledge receipt of a push message.
+     * For more information see <a href="https://tools.ietf.org/html/draft-thomson-webpush-protocol-00#section-6">
+     * Section 6</a> of WebPush protocol specification.
+     *
+     * @return push message resource URI on WebPush Server.
+     */
     public String resource() {
         return resource;
     }
 
+    /**
+     * Data body of a new push message resource. It could be empty if you use
+     * {@link WebPushClient#monitor(Subscription, boolean, Consumer)} with {@code nowait = true} flag
+     * and there are no new push messages on WebPush Server for the current subscription.
+     *
+     * @return payload of push message resource.
+     */
     public String data() {
         return data;
     }
 
+    /**
+     * Date-time when this push message was sent by application server and created on WebPush Server.
+     *
+     * @return created date-time.
+     */
     public LocalDateTime createdDateTime() {
         return createdDateTime;
     }
 
+    /**
+     * Date-time when this push message was received to the current user agent.
+     *
+     * @return received date-time.
+     */
     public LocalDateTime receivedDateTime() {
         return receivedDateTime;
     }
